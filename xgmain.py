@@ -44,11 +44,17 @@ def xgmain():
     boost = xgb("mc")
     boost.split(final_array)
 
+    '''
+        Arrays to store the values of the hyperparameters that are run with the model. Need to look into
+        using a more efficient testing algorithm. Bayesian hyperparameter tuning?
+        
+        Removed gblinear for booster parameter, inefficient and complications with xgboost, data for 
+        default stored in archive file.
+    '''
+
+    booster_list = ['gbtree', 'dart']
     eta_array = [0.4, 0.3, 0.1, 0.01, 0.001, 0.0001]
     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
-
-    # Removed gblinear, inefficient and complications with xgboost, data for default stored in archive file
-    booster_list = ['gbtree', 'dart']
 
     # Default parameters, should include if None set to default, xgb_plus_plus accounts for this
     _ = boost.xgb(single_pair=True, ret=True)
