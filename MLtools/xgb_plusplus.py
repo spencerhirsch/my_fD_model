@@ -13,7 +13,8 @@ from model import Model
 
 
 global resultDir
-resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/"
+# resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/"
+resultDir = "/dataframes/MZD_200_55_pd_model"
 # resultDir = "dataframes"
 model_list = []
 
