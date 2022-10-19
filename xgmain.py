@@ -1,21 +1,13 @@
-import csv
 from MLtools.xgb_plusplus import xgb
 import MLtools.xgb_plusplus
 from utilities import process_data
-from model import Model
-import random
-import os
 import json
-
 
 root_file = (
     "/Users/spencerhirsch/Documents/research/root_files/MZD_200_ALL/MZD_200_55.root"
 )
 root_dir = "cutFlowAnalyzerPXBL4PXFL3;1/Events;1"
 resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/MZD_200_55_pd_model"
-# resultDir = "/dataframes/MZD_200_55_pd_model"
-
-# json dump dictionaries and object
 
 def process():
     data = process_data("mc")  # declare data processing object
@@ -40,8 +32,7 @@ def process():
 
 
 def xgmain():
-    # Can run on preprocessed data now that I have that data
-    final_array = process()  # Can cut after takes preprocessed data
+    final_array = process()
     boost = xgb("mc")
     boost.split(final_array)
 
@@ -82,14 +73,17 @@ def xgmain():
     mod_list = xgbplus.model_list
 
     mod_list.sort(key=lambda x: (x.mcc, x.accuracy), reverse=True)
+    obj_list = []
 
-    json_string = json.dumps([ob.__dict__ for ob in mod_list])
+    for val in mod_list:
+        obj_list = val.get_model()
 
-    print(json_string)
+    print("Completed.")
 
     class_out = resultDir + "/model_list.json"
     out_file = open(class_out, "w")
-    json.dump(json_string, out_file)
+    json.dump(obj_list, out_file, indent=4)
 
 
 xgmain()
+

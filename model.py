@@ -7,8 +7,16 @@ class Model:
         self.booster = None
 
     def get_model(self):
-        return {'Accuracy': self.accuracy, 'Max Depth': self.max_depth, 'Eta': self.eta, 'MCC': self.mcc,
-                'Booster': self.booster}
+        object_dict = \
+            {
+                'Accuracy': self.accuracy,
+                'Max Depth': self.max_depth,
+                'Eta': self.eta,
+                'MCC': self.mcc,
+                'Booster': self.booster
+            }
+
+        return object_dict
 
     def set_accuracy(self, accuracy):
         self.accuracy = accuracy
@@ -39,4 +47,3 @@ class Model:
 
     def get_booster(self):
         return self.get_booster()
-
