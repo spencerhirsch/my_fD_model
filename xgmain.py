@@ -12,8 +12,8 @@ root_file = (
     "/Users/spencerhirsch/Documents/research/root_files/MZD_200_ALL/MZD_200_55.root"
 )
 root_dir = "cutFlowAnalyzerPXBL4PXFL3;1/Events;1"
-# resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/MZD_200_55_pd_model"
-resultDir = "/dataframes/MZD_200_55_pd_model"
+resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/MZD_200_55_pd_model"
+# resultDir = "/dataframes/MZD_200_55_pd_model"
 
 # json dump dictionaries and object
 
