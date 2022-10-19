@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, matthews_corrcoef, f1_score
+from sklearn.metrics import accuracy_score, matthews_corrcoef
 from xgboost import XGBClassifier
 import sys
 import os
@@ -16,7 +16,6 @@ global resultDir
 resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/"
 # resultDir = "/dataframes/MZD_200_55_pd_model"
 # resultDir = "dataframes"
-model_list = []
 
 class colors:
     WHITE = "\033[97m"
@@ -34,6 +33,7 @@ plt.rcParams.update({"font.size": 26})  # Increase font size
 
 
 class xgb:
+    model_list = []
     def __init__(self, dataset, file_name=None):
         if dataset not in ["mc", "bkg", "sig"]:
             print("Dataset type must be either 'mc' or 'bkg'.")
@@ -231,8 +231,10 @@ class xgb:
             mod.set_booster(class_report['parameters']['booster'])
             mod.set_accuracy(class_report['accuracy'])
             mod.set_mcc(class_report['mcc'])
-            model_list.append(mod)
+            xgb.model_list.append(mod)
+            # cont.set_model_list(mod)
             del mod
+            # del cont
 
             print(
                 "\nTraining Classification Report:\n\n",

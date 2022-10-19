@@ -1,3 +1,13 @@
+# class Container:
+#     def __init__(self):
+#         self.model_list = []
+#
+#     def get_model_list(self):
+#         return self.model_list
+#
+#     def set_model_list(self, Model):
+#         self.model_list.append(Model)
+
 class Model:
     def __init__(self):
         self.accuracy = None
@@ -31,7 +41,7 @@ class Model:
         self.mcc = mcc
 
     def set_booster(self, booster):
-        self.set_booster = booster
+        self.booster = booster
 
     def get_accuracy(self):
         return self.accuracy

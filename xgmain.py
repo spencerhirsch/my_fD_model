@@ -2,6 +2,7 @@ from MLtools.xgb_plusplus import xgb
 import MLtools.xgb_plusplus
 from utilities import process_data
 import json
+from model import Model
 
 root_file = (
     "/Users/spencerhirsch/Documents/research/root_files/MZD_200_ALL/MZD_200_55.root"
@@ -56,8 +57,8 @@ def xgmain():
         the different boosters.
     '''
 
-    for val in booster_list:
-        _ = boost.xgb(single_pair=True, ret=True, booster=val)
+    # for val in booster_list:
+    #     _ = boost.xgb(single_pair=True, ret=True, booster=val)
 
     for val in eta_array:
         _ = boost.xgb(single_pair=True, ret=True, eta=val)
@@ -69,14 +70,11 @@ def xgmain():
         for val2 in max_depth_array:
             _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
 
-    xgbplus = MLtools.xgb_plusplus
-    mod_list = xgbplus.model_list
-
-    mod_list.sort(key=lambda x: (x.mcc, x.accuracy), reverse=True)
+    boost.model_list.sort(key=lambda x: (x.mcc, x.accuracy), reverse=True)
+    
     obj_list = []
-
-    for val in mod_list:
-        obj_list = val.get_model()
+    for val in boost.model_list:
+        obj_list.append(val.get_model())
 
     print("Completed.")
 
