@@ -50,20 +50,20 @@ def xgmain():
 
     # Default parameters, should include if None set to default, xgb_plus_plus accounts for this
     _ = boost.xgb(single_pair=True, ret=True)
-    # _ = boost.xgb(single_pair=True, ret=True, booster='gblinear')
+    # _ = boost.xgb(single_pair=True, ret=True, booster='dart')
 
     # for val in booster_list:
     #     _ = boost.xgb(single_pair=True, ret=True, booster=val)
-    #
-    # for val in eta_array:
-    #     _ = boost.xgb(single_pair=True, ret=True, eta=val)
-    #
-    # for val in max_depth_array:
-    #     _ = boost.xgb(single_pair=True, ret=True, eta=None, max_depth=val)
-    #
-    # for val1 in eta_array:
-    #     for val2 in max_depth_array:
-    #         _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
+
+    for val in eta_array:
+        _ = boost.xgb(single_pair=True, ret=True, eta=val)
+
+    for val in max_depth_array:
+        _ = boost.xgb(single_pair=True, ret=True, eta=None, max_depth=val)
+
+    for val1 in eta_array:
+        for val2 in max_depth_array:
+            _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
 
     xgbplus = MLtools.xgb_plusplus
     mod_list = xgbplus.model_list

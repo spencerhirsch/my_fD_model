@@ -4,7 +4,7 @@ from xgboost import XGBClassifier
 class Process:
     def select_file(self, eta, max_depth, resultDir, mc_model, booster):
         if booster is not None:
-            dataDir = resultDir + "/" + mc_model + "/booster=%s" % booster
+            dataDir = resultDir + "/" + mc_model + "/booster/booster=%s" % booster
         else:
             if eta is not None and max_depth is None:
                 dataDir = (
@@ -20,48 +20,14 @@ class Process:
         return dataDir
 
     def select_model(self, eta, max_depth, booster):
-        if booster is not None:
-            model = XGBClassifier(
-                n_jobs=-1,
-                use_label_encoder=False,
-                eval_metric="logloss",
-                random_state=7,
-                booster=booster
-            )
-
-        if eta != None and max_depth != None:
-            model = XGBClassifier(
-                n_jobs=-1,
-                use_label_encoder=False,
-                eval_metric="logloss",
-                random_state=7,
-                eta=eta,
-                max_depth=max_depth,
-            )
-        elif eta != None and max_depth == None:
-            model = XGBClassifier(
-                n_jobs=-1,
-                use_label_encoder=False,
-                eval_metric="logloss",
-                random_state=7,
-                eta=eta,
-            )
-        elif eta == None and max_depth != None:
-            model = XGBClassifier(
-                n_jobs=-1,
-                use_label_encoder=False,
-                eval_metric="logloss",
-                random_state=7,
-                max_depth=max_depth,
-            )
-        else:
-            model = XGBClassifier(
-                n_jobs=-1,
-                use_label_encoder=False,
-                eval_metric="logloss",
-                random_state=7,
-                eta=eta,
-                max_depth=max_depth
-            )
+        model = XGBClassifier(
+            n_jobs=-1,
+            use_label_encoder=False,
+            eval_metric="logloss",
+            random_state=7,
+            eta=eta,
+            max_depth=max_depth,
+            booster=booster
+        )
 
         return model

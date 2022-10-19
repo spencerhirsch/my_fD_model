@@ -157,6 +157,7 @@ class xgb:
         max_depth=None,
         booster=None,
     ):
+
         num_of_epochs = 100
 
         print("\n\n")
