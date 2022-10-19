@@ -46,11 +46,15 @@ def xgmain():
 
     eta_array = [0.4, 0.3, 0.1, 0.01, 0.001, 0.0001]
     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
-    booster_list = ['gbtree', 'gblinear', 'dart']
+    booster_list = ['gbtree', 'gblinear']
 
     # Default parameters, should include if None set to default, xgb_plus_plus accounts for this
+
     _ = boost.xgb(single_pair=True, ret=True)
+
     # _ = boost.xgb(single_pair=True, ret=True, booster='dart')
+    # _ = boost.xgb(single_pair=True, ret=True, booster='gbtree')
+    # _ = boost.xgb(single_pair=True, ret=True, booster='gblinear')
 
     # for val in booster_list:
     #     _ = boost.xgb(single_pair=True, ret=True, booster=val)

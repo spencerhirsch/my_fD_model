@@ -4,9 +4,11 @@ class Model:
         self.max_depth = None
         self.eta = None
         self.mcc = None
+        self.booster = None
 
     def get_model(self):
-        return {'Accuracy': self.accuracy, 'Max Depth': self.max_depth, 'Eta': self.eta, 'MCC': self.mcc}
+        return {'Accuracy': self.accuracy, 'Max Depth': self.max_depth, 'Eta': self.eta, 'MCC': self.mcc,
+                'Booster': self.booster}
 
     def set_accuracy(self, accuracy):
         self.accuracy = accuracy
@@ -20,6 +22,9 @@ class Model:
     def set_mcc(self, mcc):
         self.mcc = mcc
 
+    def set_booster(self, booster):
+        self.set_booster = booster
+
     def get_accuracy(self):
         return self.accuracy
 
@@ -31,4 +36,7 @@ class Model:
 
     def get_mcc(self):
         return self.mcc
+
+    def get_booster(self):
+        return self.get_booster()
 

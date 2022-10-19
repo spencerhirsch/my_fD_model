@@ -227,7 +227,7 @@ class xgb:
             mod = Model()
             mod.set_eta(class_report['parameters']['eta'])
             mod.set_max_depth(class_report['parameters']['max_depth'])
-            mod.set_max_depth(class_report['parameters']['booster'])
+            mod.set_booster(class_report['parameters']['booster'])
             mod.set_accuracy(class_report['accuracy'])
             mod.set_mcc(class_report['mcc'])
             model_list.append(mod)
