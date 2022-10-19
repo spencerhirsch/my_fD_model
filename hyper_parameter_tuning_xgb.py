@@ -2,21 +2,31 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import joblib
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, matthews_corrcoef
-from xgboost import XGBClassifier
 import sys
 import os
 import json
+
+from sklearn.model_selection import train_test_split
+
 from parameter_processing import Process
 from model import Model
 import time
 
+'''
+    Cleaned up version of xgb_plusplus.py for hyperparameter tuning. This version of the class is used
+    strictly for tuning, all edits conflict wiht the original purpose of xg_plusplus.py. For organization 
+    this new file was created so that it would be able to be added to the original repository.
+    
+    Given the processed data, the xgb function in the xgb class creates the model with the necessary
+    parameters and dumps the history and classification report. As well as, create a new object to store
+    a summary of the important information from the model. This includes the parameters as well as the
+    necessary metrics in determining the efficiency of the model.
+'''
 
-global resultDir
+
 resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/"
-# resultDir = "/dataframes/MZD_200_55_pd_model"
-# resultDir = "dataframes"
+
 
 class colors:
     WHITE = "\033[97m"
@@ -35,6 +45,7 @@ plt.rcParams.update({"font.size": 26})  # Increase font size
 
 class xgb:
     model_list = []
+
     def __init__(self, dataset, file_name=None):
         if dataset not in ["mc", "bkg", "sig"]:
             print("Dataset type must be either 'mc' or 'bkg'.")
@@ -57,8 +68,6 @@ class xgb:
             os.makedirs(resultDir)  # create directory for results
         except FileExistsError:  # skip if directory already exists
             pass
-
-        return None
 
     def split(self, dataframe_shaped, test=0.25, random=7, scalerType=None, ret=False):
         print("\n\n")
@@ -147,17 +156,17 @@ class xgb:
             return None
 
     def xgb(
-        self,
-        met=True,
-        save=True,
-        filename="MZD_200_55_pd_model.sav",
-        single_pair=False,
-        ret=True,
-        verbose=True,
-        saveFig=True,
-        eta=None,
-        max_depth=None,
-        booster=None,
+            self,
+            met=True,
+            save=True,
+            filename="MZD_200_55_pd_model.sav",
+            single_pair=False,
+            ret=True,
+            verbose=True,
+            saveFig=True,
+            eta=None,
+            max_depth=None,
+            booster=None,
     ):
 
         num_of_epochs = 100
@@ -187,11 +196,7 @@ class xgb:
         global dataDir
         if self.dataset == "mc":
             mc_model = filename.split(".")[0]
-            # Original
-            # dataDir = resultDir + "/" + mc_model
-
             dataDir = proc.select_file(eta, max_depth, resultDir, mc_model, booster)
-
             try:
                 os.makedirs(dataDir)  # create directory for data/plots
             except FileExistsError:  # skip if directory already exists
@@ -208,10 +213,6 @@ class xgb:
                 os.makedirs(dataDir)  # create directory for data/plots
             except FileExistsError:  # skip if directory already exists
                 pass
-
-        # build the classifier
-        # Original
-        # model = XGBClassifier(n_jobs=-1, use_label_encoder=False, eval_metric='logloss', random_state=7)
 
         model = proc.select_model(eta, max_depth, booster)
 
@@ -241,7 +242,7 @@ class xgb:
             '''
                 Filling the object that stores all of the data. Store the objects in a list to be sorted
                 and outputted. Add to the model object for other parameters that will be tested.
-                
+
                 Booster?
                 Check notebook for others.
             '''
@@ -327,7 +328,6 @@ class xgb:
                 verbose=False,
             )
 
-
             class_out = dataDir + "/history.json"
             results = model.evals_result()
             out_file = open(class_out, "w")
@@ -339,8 +339,6 @@ class xgb:
             # evaluate predictions
             accuracy = accuracy_score(self.testY, predictions)
 
-
-
             '''
                 Probably don't need the following code. Grab the necessary metrics from the classification report.
                 It is the more efficient and better way of doing it now that the classification report returns a
@@ -349,28 +347,23 @@ class xgb:
 
             print("Accuracy: %.2f%%" % (accuracy * 100.0))
 
-            # class_out = dataDir + "/object.json"
-            # out_file = open(class_out, "w")
-            # json_str = json.dumps(mod.get_model())
-            # json.dump(json_str, out_file)
+            # epochs = len(results["validation_0"]["logloss"])
+            # x_axis = range(0, epochs)
 
-            epochs = len(results["validation_0"]["logloss"])
-            x_axis = range(0, epochs)
-
-            fig, ax = plt.subplots(figsize=(12, 12))
-            ax.grid()
-            ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
-            ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
-            ax.legend()
-            plt.ylabel("Log Loss", loc="top")
-            plt.xlabel("Epoch", loc="right")
-            plt.title("XGBoost Log Loss")
-
-            if saveFig:
-                plt.savefig(
-                    dataDir + ("/XGBLogLoss_default_plusplus_%s.pdf" % self.file_name),
-                    bbox_inches="tight",
-                )
+            # fig, ax = plt.subplots(figsize=(12, 12))
+            # ax.grid()
+            # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
+            # ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
+            # ax.legend()
+            # plt.ylabel("Log Loss", loc="top")
+            # plt.xlabel("Epoch", loc="right")
+            # plt.title("XGBoost Log Loss")
+            #
+            # if saveFig:
+            #     plt.savefig(
+            #         dataDir + ("/XGBLogLoss_default_plusplus_%s.pdf" % self.file_name),
+            #         bbox_inches="tight",
+            #     )
 
             # plt.show()
             # plt.clf()
@@ -384,27 +377,27 @@ class xgb:
                 eval_set=eval_set,
                 verbose=False,
             )
-            results = model.evals_result()
+            # results = model.evals_result()
 
-            epochs = len(results["validation_0"]["error"])
-            x_axis = range(0, epochs)
+            # epochs = len(results["validation_0"]["error"])
+            # x_axis = range(0, epochs)
 
             # plot classification error
-            fig, ax = plt.subplots(figsize=(12, 12))
-            ax.grid()
-            ax.plot(x_axis, results["validation_0"]["error"], label="Train")
-            ax.plot(x_axis, results["validation_1"]["error"], label="Test")
-            ax.legend()
-            plt.ylabel("Classification Error", loc="top")
-            plt.xlabel("Epoch", loc="right")
-            plt.title("XGBoost Classification Error")
-
-            if saveFig:
-                plt.savefig(
-                    dataDir
-                    + ("/XGBClassError_default_plusplus_%s.pdf" % self.file_name),
-                    bbox_inches="tight",
-                )
+            # fig, ax = plt.subplots(figsize=(12, 12))
+            # ax.grid()
+            # ax.plot(x_axis, results["validation_0"]["error"], label="Train")
+            # ax.plot(x_axis, results["validation_1"]["error"], label="Test")
+            # ax.legend()
+            # plt.ylabel("Classification Error", loc="top")
+            # plt.xlabel("Epoch", loc="right")
+            # plt.title("XGBoost Classification Error")
+            #
+            # if saveFig:
+            #     plt.savefig(
+            #         dataDir
+            #         + ("/XGBClassError_default_plusplus_%s.pdf" % self.file_name),
+            #         bbox_inches="tight",
+            #     )
 
             # plt.show()
 
@@ -413,212 +406,3 @@ class xgb:
                 return self.single_correct_pair
         else:
             return None
-
-    def predict(
-        self,
-        dataframe_shaped,
-        filename="MZD_200_55_pd_model.sav",
-        single_pair=False,
-        ret=False,
-        verbose=True,
-    ):
-        if self.dataset == "bkg" or "sig":
-            global dataDir
-            dataDir = resultDir + "/" + self.file_name
-            try:
-                os.makedirs(dataDir)  # create directory for data/plots
-            except FileExistsError:  # skip if directory already exists
-                pass
-        if self.dataset == "mc":
-            raise ValueError(
-                "Can only predict dimuon pairs from background or signal datasets"
-            )
-            sys.exit()
-
-        if verbose:
-            print("\n\n")
-            print(60 * "*")
-            print(
-                colors.GREEN
-                + "Loading trained XGBoost model from %s" % filename
-                + colors.ENDC
-            )
-            print(60 * "*")
-
-        loaded_model = joblib.load(filename)
-
-        x_data = dataframe_shaped[:, 0:23]
-        y_data = dataframe_shaped[:, 20:24]
-
-        x_df = pd.DataFrame(
-            x_data,
-            columns=[
-                "selpT0",
-                "selpT1",
-                "selpT2",
-                "selpT3",
-                "selEta0",
-                "selEta1",
-                "selEta2",
-                "selEta3",
-                "selPhi0",
-                "selPhi1",
-                "selPhi2",
-                "selPhi3",
-                "selCharge0",
-                "selCharge1",
-                "selCharge2",
-                "selCharge3",
-                "dPhi0",
-                "dPhi1",
-                "dRA0",
-                "dRA1",
-                "event",
-                "invMassA0",
-                "invMassA1",
-            ],
-        )
-
-        y_df = pd.DataFrame(y_data, columns=["event", "invmA0", "invmA1", "pair"])
-        x_sorted = x_df.sort_values("event")
-
-        predY = loaded_model.predict(x_sorted)
-        arr = predY
-
-        x_sorted["Predict"] = arr.tolist()
-
-        if verbose:
-            print("\n\n")
-            print(60 * "*")
-            print(
-                colors.GREEN
-                + "Determining correct and wrong pairs for the %s dataset"
-                % self.file_name
-                + colors.ENDC
-            )
-            print(60 * "*")
-
-        self.correct_pair = x_sorted[x_sorted["Predict"] == 1]
-        self.wrong_pair = x_sorted[x_sorted["Predict"] == 0]
-
-        self.correct_pair.to_csv(dataDir + ("/correct_pair_%s.csv" % self.file_name))
-        self.wrong_pair.to_csv(dataDir + ("/wrong_pair_%s.csv" % self.file_name))
-
-        if single_pair:
-            self.single_correct_pair = self.correct_pair.drop_duplicates(
-                subset=["event", "Predict"], keep="last"
-            )
-            self.single_wrong_pair = self.wrong_pair.drop_duplicates(
-                subset=["event", "Predict"], keep="last"
-            )
-
-            self.single_correct_pair.to_csv(
-                dataDir + ("/single_correct_pair_%s.csv" % self.file_name)
-            )
-            self.single_wrong_pair.to_csv(
-                dataDir + ("/single_wrong_pair_%s.csv" % self.file_name)
-            )
-
-        if ret:
-            return self.single_correct_pair
-
-    def plotMatch(self, save=True, verbose=False):
-
-        if verbose:
-            print("\n\n")
-            print(60 * "*")
-            print(
-                colors.GREEN
-                + "Plotting correctly and incorrectly matched muons"
-                + colors.ENDC
-            )
-            print(60 * "*")
-
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(20, 10))
-        ax = ax.ravel()
-
-        for pair in range(2):
-            if pair == 0:
-                self.correct_pair.plot(
-                    x="invMassA0",
-                    y="invMassA1",
-                    kind="scatter",
-                    color="darkred",
-                    ax=ax[pair],
-                    zorder=3,
-                )
-                ax[pair].set_title("Correct Pair")
-                ax[pair].set_ylim(0, 80)
-                ax[pair].set_xlim(0, 80)
-            elif pair == 1:
-                self.wrong_pair.plot(
-                    x="invMassA0",
-                    y="invMassA1",
-                    kind="scatter",
-                    color="darkred",
-                    ax=ax[pair],
-                    zorder=3,
-                )
-                ax[pair].set_title("Wrong Pair")
-                ax[pair].set_ylim(0, 250)
-                ax[pair].set_xlim(0, 250)
-
-            ax[pair].grid(zorder=0)
-            ax[pair].set_xlabel(r"$m_{\mu\mu_{1}}$[GeV]", loc="right")
-            ax[pair].set_ylabel(r"$m_{\mu\mu_{2}}$[GeV]", loc="top")
-
-        if save:
-            fig.savefig(
-                dataDir + ("/2DInvMass_dPhiCor_%s.pdf" % self.file_name),
-                bbox_inches="tight",
-            )
-
-        fig, ax = plt.subplots(
-            nrows=2, ncols=2, figsize=(15, 15), constrained_layout=True
-        )
-        ax = ax.ravel()
-        partial = "invMassA"
-
-        for pair in range(4):
-            if pair <= 1:
-                if pair == 0:
-                    key = partial + "0"
-                    ax[pair].set_xlabel(r"$m_{\mu\mu_{1}}$[GeV]", loc="right")
-                elif pair == 1:
-                    key = partial + "1"
-                    ax[pair].set_xlabel(r"$m_{\mu\mu_{2}}$[GeV]", loc="right")
-                self.correct_pair[key].plot.hist(
-                    bins=100,
-                    alpha=0.9,
-                    range=(0, 100),
-                    color="darkred",
-                    ax=ax[pair],
-                    zorder=3,
-                )
-                ax[pair].set_title("Correct Pair")
-            elif pair > 1:
-                if pair == 2:
-                    key = partial + "0"
-                    ax[pair].set_xlabel(r"$m_{\mu\mu_{1}}$[GeV]", loc="right")
-                elif pair == 3:
-                    key = partial + "1"
-                    ax[pair].set_xlabel(r"$m_{\mu\mu_{2}}$[GeV]", loc="right")
-
-                self.wrong_pair[key].plot.hist(
-                    bins=100,
-                    alpha=0.9,
-                    range=(0, 200),
-                    color="darkred",
-                    ax=ax[pair],
-                    zorder=3,
-                )
-                ax[pair].set_title("Wrong Pair")
-
-            ax[pair].grid(zorder=0)
-            ax[pair].set_ylabel("Frequency", loc="top")
-
-        if save:
-            fig.savefig(
-                dataDir + ("/1DInvMass_dPhiCor_%s.pdf" % self.file_name),
-                bbox_inches="tight",
-            )

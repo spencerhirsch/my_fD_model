@@ -1,13 +1,3 @@
-# class Container:
-#     def __init__(self):
-#         self.model_list = []
-#
-#     def get_model_list(self):
-#         return self.model_list
-#
-#     def set_model_list(self, Model):
-#         self.model_list.append(Model)
-
 class Model:
     def __init__(self):
         self.accuracy = None
@@ -15,15 +5,17 @@ class Model:
         self.eta = None
         self.mcc = None
         self.booster = None
+        self.time = None
 
     def get_model(self):
         object_dict = \
             {
-                'Accuracy': self.accuracy,
-                'Max Depth': self.max_depth,
-                'Eta': self.eta,
-                'MCC': self.mcc,
-                'Booster': self.booster
+                'accuracy': self.accuracy,
+                'max depth': self.max_depth,
+                'eta': self.eta,
+                'mcc': self.mcc,
+                'booster': self.booster,
+                'time': self.time
             }
 
         return object_dict
@@ -43,6 +35,9 @@ class Model:
     def set_booster(self, booster):
         self.booster = booster
 
+    def set_time(self, time):
+        self.time = time
+
     def get_accuracy(self):
         return self.accuracy
 
@@ -57,3 +52,6 @@ class Model:
 
     def get_booster(self):
         return self.get_booster()
+
+    def get_time(self):
+        return self.time
