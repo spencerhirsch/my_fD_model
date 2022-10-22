@@ -1,7 +1,10 @@
-from hyper_parameter_tuning_xgb import xgb
+import pprint
+from tuning.hyper_parameter_tuning_xgb import xgb
 from utilities import process_data
 import json
 import time
+import matplotlib.pyplot as plt
+import os
 
 root_file = (
     "/Users/spencerhirsch/Documents/research/root_files/MZD_200_ALL/MZD_200_55.root"
@@ -55,31 +58,12 @@ def xgmain():
         the different boosters.
     '''
 
-    for val in booster_list:
-        _ = boost.xgb(single_pair=True, ret=True, booster=val)
-
-    for val in eta_array:
-        _ = boost.xgb(single_pair=True, ret=True, eta=val)
-
-    for val in max_depth_array:
-        _ = boost.xgb(single_pair=True, ret=True, eta=None, max_depth=val)
-
+    # for val in booster_list:
+    #     _ = boost.xgb(single_pair=True, ret=True, booster=val)
     # Run with default booster, gbtree
     for val1 in eta_array:
         for val2 in max_depth_array:
             _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
-
-    # Need to add file processing for this.
-
-    # for val in eta_array:
-    #     _ = boost.xgb(single_pair=True, ret=True, eta=val, booster='dart')
-    #
-    # for val in max_depth_array:
-    #     _ = boost.xgb(single_pair=True, ret=True, eta=None, max_depth=val, booster='dart')
-    #
-    # for val1 in eta_array:
-    #     for val2 in max_depth_array:
-    #         _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2, booster='dart')
 
     boost.model_list.sort(key=lambda x: (x.mcc, x.accuracy), reverse=True)
 
@@ -95,7 +79,102 @@ def xgmain():
 
     end = time.time()
     total = end - start
+
+    class_out = resultDir + "/time.json"
+    out_file = open(class_out, "w")
+    json.dump(total, out_file)
     print(total)
 
+    '''
+        Plotting for various hyper-parameters in the model to take care of comparisons.
+    '''
+def plot_data():
+    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
+    f = open(dir)
+    data = json.load(f)
 
-xgmain()
+    eta_array = [0.4, 0.3, 0.1, 0.01, 0.001, 0.0001]
+    max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
+
+    data = sorted(data, key=lambda x: x['eta'])
+
+    # pprint.pprint(sorted(data, key=lambda x: x['eta']))
+
+    index = 0
+    plt.rc('xtick', labelsize=10)
+    plt.rc('ytick', labelsize=10)
+    for i in range(len(max_depth_array)):
+        storage = []
+        for val in data:
+            if val['max depth'] == max_depth_array[index]:
+                storage.append(val)
+
+        eta = []
+        max_depth = []
+        f1 = []
+        precision = []
+        mcc = []
+        accuracy = []
+        for val in storage:
+            eta.append(val['eta'])
+            max_depth.append(val['max depth'])
+            f1.append(val['f1'])
+            precision.append(val['precision'])
+            mcc.append(val['mcc'])
+            accuracy.append(val['accuracy'])
+
+        fig, ax = plt.subplots()
+        plt.title('Fixed Max Depth of %s' % max_depth_array[index], fontsize=15)
+        default_x_ticks = range(len(eta))
+        # ax.xticks(default_x_ticks, eta)
+        # ax.set(xlabel='Learning Rate (eta)', ylabel='Value')
+        plt.xlabel('Learning Rate (eta)', fontsize=10, loc='right')
+        plt.ylabel('Value', fontsize=10, loc='top')
+        ax.grid()
+        ax.plot(eta, f1, label='f1 Score', marker='D', linewidth=1)
+        ax.plot(eta, mcc, label='mcc', marker='D', linewidth=1)
+        ax.plot(eta, precision, label='precision', marker='D', linewidth=1)
+        ax.plot(eta, accuracy, label='accuracy', marker='D', linewidth=1)
+        ax.legend(loc='lower right', prop={'size': 12})
+
+
+        fig.canvas.draw()
+        plt.show()
+        path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
+
+        try:
+            os.mkdir(path)
+        except OSError as error:
+            print(error)
+
+        fig.savefig(path + '/%s_max_depth_comparison.pdf' % max_depth_array[index])
+
+        index += 1
+
+
+    # for val in data:
+    #     eta.append(val['eta'])
+    #     md.append(val['max depth'])
+    #     mcc.append(val['mcc'])
+    #
+    #
+    # fig, ax = plt.subplots()
+    # im = ax.imshow(mcc)
+    #
+    # ax.set_xticks(np.arange(len(eta)), labels=eta)
+    # ax.set_yticks(np.arange(len(md)), labels=md)
+    #
+    # plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+    #          rotation_mode="anchor")
+    #
+    # for i in range(len(md)):
+    #     text = ax.text(i, mcc[i],
+    #            ha="center", va="center", color="w")
+    #
+    # ax.set_title("Learning Rate vs. Max Depth")
+    # fig.tight_layout()
+    # plt.show()
+
+
+plot_data()
+# xgmain()

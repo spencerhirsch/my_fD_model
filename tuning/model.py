@@ -6,6 +6,8 @@ class Model:
         self.mcc = None
         self.booster = None
         self.time = None
+        self.f1 = None
+        self.precision = None
 
     def get_model(self):
         object_dict = \
@@ -15,7 +17,9 @@ class Model:
                 'eta': self.eta,
                 'mcc': self.mcc,
                 'booster': self.booster,
-                'time': self.time
+                'time': self.time,
+                'f1': self.f1,
+                'precision': self.precision
             }
 
         return object_dict
@@ -38,6 +42,12 @@ class Model:
     def set_time(self, time):
         self.time = time
 
+    def set_f1(self, f1):
+        self.f1 = f1
+
+    def set_precision(self, precision):
+        self.precision = precision
+
     def get_accuracy(self):
         return self.accuracy
 
@@ -55,3 +65,9 @@ class Model:
 
     def get_time(self):
         return self.time
+
+    def get_f1(self):
+        return self.f1
+
+    def get_precision(self):
+        return self.precision

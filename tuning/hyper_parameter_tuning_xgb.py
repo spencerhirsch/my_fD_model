@@ -9,8 +9,8 @@ import json
 
 from sklearn.model_selection import train_test_split
 
-from parameter_processing import Process
-from model import Model
+from tuning.parameter_processing import Process
+from tuning.model import Model
 import time
 
 '''
@@ -254,10 +254,10 @@ class xgb:
             mod.set_accuracy(class_report['accuracy'])
             mod.set_mcc(class_report['mcc'])
             mod.set_time(total_time)
+            mod.set_f1(class_report['1.0']['f1-score'])
+            mod.set_precision(class_report['1.0']['precision'])
             xgb.model_list.append(mod)
-            # cont.set_model_list(mod)
             del mod
-            # del cont
 
             print(
                 "\nTraining Classification Report:\n\n",
