@@ -126,8 +126,6 @@ def plot_data():
         fig, ax = plt.subplots()
         plt.title('Fixed Max Depth of %s' % max_depth_array[index], fontsize=15)
         default_x_ticks = range(len(eta))
-        # ax.xticks(default_x_ticks, eta)
-        # ax.set(xlabel='Learning Rate (eta)', ylabel='Value')
         plt.xlabel('Learning Rate (eta)', fontsize=10, loc='right')
         plt.ylabel('Value', fontsize=10, loc='top')
         ax.grid()
