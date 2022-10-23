@@ -1,4 +1,7 @@
 import pprint
+
+import numpy as np
+
 from tuning.hyper_parameter_tuning_xgb import xgb
 from utilities import process_data
 import json
@@ -150,29 +153,59 @@ def plot_data():
         index += 1
 
 
-    # for val in data:
-    #     eta.append(val['eta'])
-    #     md.append(val['max depth'])
-    #     mcc.append(val['mcc'])
-    #
-    #
-    # fig, ax = plt.subplots()
-    # im = ax.imshow(mcc)
-    #
-    # ax.set_xticks(np.arange(len(eta)), labels=eta)
-    # ax.set_yticks(np.arange(len(md)), labels=md)
-    #
-    # plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-    #          rotation_mode="anchor")
-    #
-    # for i in range(len(md)):
-    #     text = ax.text(i, mcc[i],
-    #            ha="center", va="center", color="w")
-    #
-    # ax.set_title("Learning Rate vs. Max Depth")
-    # fig.tight_layout()
-    # plt.show()
+def plot_heat():
+    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
+    f = open(dir)
+    data = json.load(f)
 
+    max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
+    eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
+    mcc = []
 
-plot_data()
+    data = sorted(data, key=lambda x: x['eta'], reverse=False)
+    index = 0
+    for i in range(len(max_depth_array)):
+        storage = []
+        mmcc = []
+        data = sorted(data, key=lambda x: x['eta'])
+        for val in data:
+            if val['max depth'] == max_depth_array[index]:
+                storage.append(val)
+
+        for val in storage:
+            mmcc.append(val['mcc'])
+        print(storage)
+        print()
+        mcc.append(mmcc)
+        index += 1
+
+    mcc.reverse()
+    mcc = np.array(mcc)
+
+    print(mcc)
+    plt.rcParams.update({'font.size': 12})  # Increase font size for plotting
+    fig, ax = plt.subplots()
+    im = ax.imshow(mcc)
+    # mesh = ax.pcolormesh(mcc, max_depth_array, eta_array, edgecolors='k', linewidths=0.5, cmap='inferno')
+    cbar = ax.figure.colorbar(im, ax=ax)
+    # cbar = plt.colorbar(mesh)
+    cbar.ax.set_ylabel('mcc', rotation=-90, va="bottom")
+
+    max_depth_array.reverse()
+    ax.set_xticks(np.arange(len(eta_array)), labels=eta_array)
+    ax.set_yticks(np.arange(len(max_depth_array)), labels=max_depth_array)
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    for i in range(len(max_depth_array)):
+        for j in range(len(eta_array)):
+            text = ax.text(j, i, str(mcc[i, j])[:5],
+                           ha="center", va="center", color="w", fontsize=8)
+
+    ax.set_title("Matthew's Correlation Coefficient")
+    fig.tight_layout()
+    plt.show()
+
+plot_heat()
+# plot_data()
 # xgmain()
