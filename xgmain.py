@@ -153,44 +153,264 @@ def plot_data():
         index += 1
 
 
-def plot_heat():
+# def plot_heat():
+#     dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
+#     f = open(dir)
+#     data = json.load(f)
+#     print(data)
+#
+#     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
+#     eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
+#     mcc = []
+#
+#     data = sorted(data, key=lambda x: x['eta'], reverse=False)
+#     index = 0
+#     for i in range(len(max_depth_array)):
+#         storage = []
+#         mmcc = []
+#         data = sorted(data, key=lambda x: x['eta'])
+#         for val in data:
+#             if val['max depth'] == max_depth_array[index]:
+#                 storage.append(val)
+#
+#         for val in storage:
+#             mmcc.append(val['mcc'])
+#         print(storage)
+#         print()
+#         mcc.append(mmcc)
+#         index += 1
+#
+#     mcc.reverse()
+#     mcc = np.array(mcc)
+#
+#
+#     print(mcc)
+#     plt.rcParams.update({'font.size': 14})  # Increase font size for plotting
+#     fig, ax = plt.subplots()
+#     # im = ax.imshow(mcc)
+#     im = ax.imshow(mcc, vmin=0.7, vmax=1)
+#     ax.set_xlabel(r'Learning rate ($\eta$)', loc="right")
+#     ax.set_ylabel('Max depth', loc="top")
+#     # mesh = ax.pcolormesh(mcc, max_depth_array, eta_array, edgecolors='k', linewidths=0.5, cmap='inferno')
+#     cbar = ax.figure.colorbar(im, ax=ax)
+#     # cbar = plt.colorbar(mesh)
+#     # plt.pcolor(vmin=0, vmax=1)
+#     cbar.ax.set_ylabel('Matthew\'s correlation coefficient', rotation=-90, va="bottom")
+#     # ax.pcolormesh(mcc, vmin=0, vmax=1)
+#     max_depth_array.reverse()
+#     ax.set_xticks(np.arange(len(eta_array)), labels=eta_array)
+#     ax.set_yticks(np.arange(len(max_depth_array)), labels=max_depth_array)
+#     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+#              rotation_mode="anchor")
+#
+#     for i in range(len(max_depth_array)):
+#         for j in range(len(eta_array)):
+#             text = ax.text(j, i, str(mcc[i, j])[:5],
+#                            ha="center", va="center", color="w", fontsize=8)
+#
+#     # ax.set_title("Matthew's Correlation Coefficient")
+#     fig.tight_layout()
+#     plt.show()
+#
+#     path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
+#
+#     try:
+#         os.mkdir(path)
+#     except OSError as error:
+#         print(error)
+#
+#     fig.savefig(path + '/heat_map')
+#
+#     index += 1
+#
+#
+# def plot_f1():
+#     dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
+#     f = open(dir)
+#     data = json.load(f)
+#
+#     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
+#     eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
+#     f1 = []
+#
+#     data = sorted(data, key=lambda x: x['eta'], reverse=False)
+#     index = 0
+#     for i in range(len(max_depth_array)):
+#         storage = []
+#         tf1 = []
+#         data = sorted(data, key=lambda x: x['eta'])
+#         for val in data:
+#             if val['max depth'] == max_depth_array[index]:
+#                 storage.append(val)
+#
+#         for val in storage:
+#             tf1.append(val['f1'])
+#         print(storage)
+#         print()
+#         f1.append(tf1)
+#         index += 1
+#
+#     f1.reverse()
+#     f1 = np.array(f1)
+#
+#     print(f1)
+#     plt.rcParams.update({'font.size': 14})  # Increase font size for plotting
+#     fig, ax = plt.subplots()
+#     # im = ax.imshow(mcc)
+#     im = ax.imshow(f1, vmin=0.8, vmax=1)
+#     ax.set_xlabel(r'Learning rate ($\eta$)', loc="right")
+#     ax.set_ylabel('Max depth', loc="top")
+#     # mesh = ax.pcolormesh(mcc, max_depth_array, eta_array, edgecolors='k', linewidths=0.5, cmap='inferno')
+#     cbar = ax.figure.colorbar(im, ax=ax)
+#     # cbar = plt.colorbar(mesh)
+#     # plt.pcolor(vmin=0, vmax=1)
+#     cbar.ax.set_ylabel('F-1 Score', rotation=-90, va="bottom")
+#     # ax.pcolormesh(mcc, vmin=0, vmax=1)
+#     max_depth_array.reverse()
+#     ax.set_xticks(np.arange(len(eta_array)), labels=eta_array)
+#     ax.set_yticks(np.arange(len(max_depth_array)), labels=max_depth_array)
+#     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+#              rotation_mode="anchor")
+#
+#     for i in range(len(max_depth_array)):
+#         for j in range(len(eta_array)):
+#             text = ax.text(j, i, str(f1[i, j])[:5],
+#                            ha="center", va="center", color="w", fontsize=8)
+#
+#     # ax.set_title("Matthew's Correlation Coefficient")
+#     fig.tight_layout()
+#     plt.show()
+#
+#     path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
+#
+#     try:
+#         os.mkdir(path)
+#     except OSError as error:
+#         print(error)
+#
+#     fig.savefig(path + '/heat_map_f1')
+#
+#     index += 1
+#
+# def plot_exec_time():
+#     dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
+#     f = open(dir)
+#     data = json.load(f)
+#
+#     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
+#     eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
+#     time = []
+#
+#     data = sorted(data, key=lambda x: x['eta'], reverse=False)
+#     index = 0
+#     for i in range(len(max_depth_array)):
+#         storage = []
+#         ttime = []
+#         data = sorted(data, key=lambda x: x['eta'])
+#         for val in data:
+#             if val['max depth'] == max_depth_array[index]:
+#                 storage.append(val)
+#
+#         for val in storage:
+#             ttime.append(val['time'])
+#         print(storage)
+#         print()
+#         time.append(ttime)
+#         index += 1
+#
+#     time.reverse()
+#     f1 = np.array(time)
+#
+#     print(f1)
+#     plt.rcParams.update({'font.size': 18})  # Increase font size for plotting
+#     fig, ax = plt.subplots()
+#     # im = ax.imshow(mcc)
+#     im = ax.imshow(f1, vmin=1, vmax=11)
+#     ax.set_xlabel(r'Learning rate ($\eta$)', loc="right")
+#     ax.set_ylabel('Max depth', loc="top")
+#     # mesh = ax.pcolormesh(mcc, max_depth_array, eta_array, edgecolors='k', linewidths=0.5, cmap='inferno')
+#     cbar = ax.figure.colorbar(im, ax=ax)
+#     # cbar = plt.colorbar(mesh)
+#     # plt.pcolor(vmin=0, vmax=1)
+#     cbar.ax.set_ylabel('Execution time (s)', rotation=-90, va="bottom")
+#     # ax.pcolormesh(mcc, vmin=0, vmax=1)
+#     max_depth_array.reverse()
+#     ax.set_xticks(np.arange(len(eta_array)), labels=eta_array)
+#     ax.set_yticks(np.arange(len(max_depth_array)), labels=max_depth_array)
+#     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+#              rotation_mode="anchor")
+#
+#     for i in range(len(max_depth_array)):
+#         for j in range(len(eta_array)):
+#             if float(f1[i, j]) > 6.4:
+#                 text = ax.text(j, i, str(f1[i, j])[:5],
+#                                ha="center", va="center", color="k", fontsize=10)
+#             else:
+#                 text = ax.text(j, i, str(f1[i, j])[:5],
+#                            ha="center", va="center", color="w", fontsize=10)
+#
+#     # ax.set_title("Matthew's Correlation Coefficient")
+#     fig.tight_layout()
+#     plt.show()
+#
+#     path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
+#
+#     try:
+#         os.mkdir(path)
+#     except OSError as error:
+#         print(error)
+#
+#     fig.savefig(path + '/heat_map_exec_time')
+#
+#     index += 1
+    
+def heat_map(metric):
+    vmin = 0
+    vmax = 1
+    if metric is 'f1':
+        vmin = 0.8
+    elif metric is 'mcc':
+        vmin = 0.7
+    elif metric is 'time':
+        vmin = 1
+        vmax = 11
+
     dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
     f = open(dir)
     data = json.load(f)
 
     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
     eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
-    mcc = []
+    value_array = []
 
     data = sorted(data, key=lambda x: x['eta'], reverse=False)
     index = 0
     for i in range(len(max_depth_array)):
         storage = []
-        mmcc = []
+        temp_value_array = []
         data = sorted(data, key=lambda x: x['eta'])
         for val in data:
             if val['max depth'] == max_depth_array[index]:
                 storage.append(val)
 
         for val in storage:
-            mmcc.append(val['mcc'])
+            temp_value_array.append(val['%s' % metric])
         print(storage)
         print()
-        mcc.append(mmcc)
+        value_array.append(temp_value_array)
         index += 1
 
-    mcc.reverse()
-    mcc = np.array(mcc)
+    value_array.reverse()
+    value_array = np.array(value_array)
 
-    print(mcc)
-    plt.rcParams.update({'font.size': 12})  # Increase font size for plotting
+    print(value_array)
+    plt.rcParams.update({'font.size': 14})  # Increase font size for plotting
     fig, ax = plt.subplots()
-    im = ax.imshow(mcc)
-    # mesh = ax.pcolormesh(mcc, max_depth_array, eta_array, edgecolors='k', linewidths=0.5, cmap='inferno')
+    im = ax.imshow(value_array, vmin=vmin, vmax=vmax)
+    ax.set_xlabel(r'Learning rate ($\eta$)', loc="right")
+    ax.set_ylabel('Max depth', loc="top")
     cbar = ax.figure.colorbar(im, ax=ax)
-    # cbar = plt.colorbar(mesh)
-    cbar.ax.set_ylabel('mcc', rotation=-90, va="bottom")
-
+    cbar.ax.set_ylabel('%s' % metric.capitalize(), rotation=-90, va="bottom")
     max_depth_array.reverse()
     ax.set_xticks(np.arange(len(eta_array)), labels=eta_array)
     ax.set_yticks(np.arange(len(max_depth_array)), labels=max_depth_array)
@@ -199,13 +419,62 @@ def plot_heat():
 
     for i in range(len(max_depth_array)):
         for j in range(len(eta_array)):
-            text = ax.text(j, i, str(mcc[i, j])[:5],
-                           ha="center", va="center", color="w", fontsize=8)
+            if metric is not 'time':
+                text = ax.text(j, i, str(value_array[i, j])[:5],
+                               ha="center", va="center", color="w", fontsize=8)
+            else:
+                if float(value_array[i, j]) > 6.4:
+                    text = ax.text(j, i, str(value_array[i, j])[:5],
+                                   ha="center", va="center", color="k", fontsize=10)
+                else:
+                    text = ax.text(j, i, str(value_array[i, j])[:5],
+                                   ha="center", va="center", color="w", fontsize=10)
 
-    ax.set_title("Matthew's Correlation Coefficient")
+
     fig.tight_layout()
     plt.show()
 
-plot_heat()
+    path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
+
+    try:
+        os.mkdir(path)
+    except OSError as error:
+        print(error)
+
+    fig.savefig(path + '/heat_map_%s' % metric)
+
+    index += 1
+
+def main():
+    print('Which program would you like to use:\n(1): Generate permutations of models \n(2): Generate Heat Map')
+
+    choice = input('Choice: ')
+
+
+    if choice == '1':
+        xgmain()
+    elif choice == '2':
+        print("Which metric would you like to plot?\n (1): time\n (2): mcc\n (3): f1")
+        input_val = input('Choice: ')
+        metric = ''
+
+        if input_val == '1':
+            metric = 'time'
+        elif input_val == '2':
+            metric = 'mcc'
+        elif input_val == '3':
+            metric = 'f1'
+        else:
+            print('Invalid input.')
+
+        heat_map(metric)
+    else:
+        print("Input invalid.")
+
+
+main()
+# plot_exec_time()
+# plot_f1()
+# plot_heat()
 # plot_data()
 # xgmain()
