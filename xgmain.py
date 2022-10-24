@@ -1,13 +1,10 @@
-import pprint
-
 import numpy as np
-
 from tuning.hyper_parameter_tuning_xgb import xgb
+from tuning.plotting import plot_data, heat_map
 from utilities import process_data
 import json
 import time
-import matplotlib.pyplot as plt
-import os
+
 
 root_file = (
     "/Users/spencerhirsch/Documents/research/root_files/MZD_200_ALL/MZD_200_55.root"
@@ -15,6 +12,11 @@ root_file = (
 root_dir = "cutFlowAnalyzerPXBL4PXFL3;1/Events;1"
 resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/MZD_200_55_pd_model"
 
+
+'''
+    Function that deals with processing data. Utilizes the process_data class from the utilities 
+    directory. Returns a final array with all of the values necessary for generating the models.
+'''
 
 def process():
     data = process_data("mc")  # declare data processing object
@@ -38,6 +40,13 @@ def process():
     return final_array
 
 
+'''
+    Function handles data processing for building the various xgboost models for analysis. Stores the data in
+    their respective files and directories. Calls all of the necessary functions and creates all objects
+    used for analysis. Driver function to collect all data for further analysis. 
+'''
+
+
 def xgmain():
     start = time.time()
     final_array = process()
@@ -57,13 +66,10 @@ def xgmain():
     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
 
     '''
-        Iterate through all of the hyper parameters. Need to include the parameters that test
-        the different boosters.
+        Iterate through all of the hyper parameters. Currently looking into the learning rate (eta) and the max
+        depth of the tree.
     '''
 
-    # for val in booster_list:
-    #     _ = boost.xgb(single_pair=True, ret=True, booster=val)
-    # Run with default booster, gbtree
     for val1 in eta_array:
         for val2 in max_depth_array:
             _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
@@ -88,156 +94,18 @@ def xgmain():
     json.dump(total, out_file)
     print(total)
 
-    '''
-        Plotting for various hyper-parameters in the model to take care of comparisons.
-    '''
-def plot_data():
-    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
-    f = open(dir)
-    data = json.load(f)
 
-    eta_array = [0.4, 0.3, 0.1, 0.01, 0.001, 0.0001]
-    max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
-
-    data = sorted(data, key=lambda x: x['eta'])
-
-    # pprint.pprint(sorted(data, key=lambda x: x['eta']))
-
-    index = 0
-    plt.rc('xtick', labelsize=10)
-    plt.rc('ytick', labelsize=10)
-    for i in range(len(max_depth_array)):
-        storage = []
-        for val in data:
-            if val['max depth'] == max_depth_array[index]:
-                storage.append(val)
-
-        eta = []
-        max_depth = []
-        f1 = []
-        precision = []
-        mcc = []
-        accuracy = []
-        for val in storage:
-            eta.append(val['eta'])
-            max_depth.append(val['max depth'])
-            f1.append(val['f1'])
-            precision.append(val['precision'])
-            mcc.append(val['mcc'])
-            accuracy.append(val['accuracy'])
-
-        fig, ax = plt.subplots()
-        plt.title('Fixed Max Depth of %s' % max_depth_array[index], fontsize=15)
-        default_x_ticks = range(len(eta))
-        plt.xlabel('Learning Rate (eta)', fontsize=10, loc='right')
-        plt.ylabel('Value', fontsize=10, loc='top')
-        ax.grid()
-        ax.plot(eta, f1, label='f1 Score', marker='D', linewidth=1)
-        ax.plot(eta, mcc, label='mcc', marker='D', linewidth=1)
-        ax.plot(eta, precision, label='precision', marker='D', linewidth=1)
-        ax.plot(eta, accuracy, label='accuracy', marker='D', linewidth=1)
-        ax.legend(loc='lower right', prop={'size': 12})
-
-
-        fig.canvas.draw()
-        plt.show()
-        path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
-
-        try:
-            os.mkdir(path)
-        except OSError as error:
-            print(error)
-
-        fig.savefig(path + '/%s_max_depth_comparison.pdf' % max_depth_array[index])
-
-        index += 1
-    
-def heat_map(metric):
-    vmin = 0
-    vmax = 1
-    if metric is 'f1':
-        vmin = 0.8
-    elif metric is 'mcc':
-        vmin = 0.7
-    elif metric is 'time':
-        vmin = 1
-        vmax = 11
-
-    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
-    f = open(dir)
-    data = json.load(f)
-
-    max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
-    eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
-    value_array = []
-
-    data = sorted(data, key=lambda x: x['eta'], reverse=False)
-    index = 0
-    for i in range(len(max_depth_array)):
-        storage = []
-        temp_value_array = []
-        data = sorted(data, key=lambda x: x['eta'])
-        for val in data:
-            if val['max depth'] == max_depth_array[index]:
-                storage.append(val)
-
-        for val in storage:
-            temp_value_array.append(val['%s' % metric])
-        print(storage)
-        print()
-        value_array.append(temp_value_array)
-        index += 1
-
-    value_array.reverse()
-    value_array = np.array(value_array)
-
-    print(value_array)
-    plt.rcParams.update({'font.size': 14})  # Increase font size for plotting
-    fig, ax = plt.subplots()
-    im = ax.imshow(value_array, vmin=vmin, vmax=vmax)
-    ax.set_xlabel(r'Learning rate ($\eta$)', loc="right")
-    ax.set_ylabel('Max depth', loc="top")
-    cbar = ax.figure.colorbar(im, ax=ax)
-    cbar.ax.set_ylabel('%s' % metric.capitalize(), rotation=-90, va="bottom")
-    max_depth_array.reverse()
-    ax.set_xticks(np.arange(len(eta_array)), labels=eta_array)
-    ax.set_yticks(np.arange(len(max_depth_array)), labels=max_depth_array)
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-             rotation_mode="anchor")
-
-    for i in range(len(max_depth_array)):
-        for j in range(len(eta_array)):
-            if metric is not 'time':
-                text = ax.text(j, i, str(value_array[i, j])[:5],
-                               ha="center", va="center", color="w", fontsize=8)
-            else:
-                if float(value_array[i, j]) > 6.4:
-                    text = ax.text(j, i, str(value_array[i, j])[:5],
-                                   ha="center", va="center", color="k", fontsize=10)
-                else:
-                    text = ax.text(j, i, str(value_array[i, j])[:5],
-                                   ha="center", va="center", color="w", fontsize=10)
-
-
-    fig.tight_layout()
-    plt.show()
-
-    path = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/plots'
-
-    try:
-        os.mkdir(path)
-    except OSError as error:
-        print(error)
-
-    fig.savefig(path + '/heat_map_%s' % metric)
-
-    index += 1
+'''
+    Driver function that handles each respective function. Takes input from the standard input stream
+    and calls each function for its desired ability specified by the user. Makes the code much cleaner 
+    and more concise.
+'''
 
 def main():
-    print('Which program would you like to use:\n(1): Generate permutations of models \n(2): Generate Heat Map')
+    print('Which program would you like to use:\n(1): Generate permutations of models \n(2): Generate Heat Map '
+          '\n(3): Plot data')
 
     choice = input('Choice: ')
-
 
     if choice == '1':
         xgmain()
@@ -256,13 +124,11 @@ def main():
             print('Invalid input.')
 
         heat_map(metric)
+    elif choice == '3':
+        plot_data()
     else:
         print("Input invalid.")
 
 
 main()
-# plot_exec_time()
-# plot_f1()
-# plot_heat()
-# plot_data()
-# xgmain()
+
