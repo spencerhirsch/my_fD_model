@@ -8,7 +8,7 @@ import numpy as np
     Shows all key metrics on one singular plot by fixing the value of the max depth of the tree.
 '''
 
- 
+
 def plot_data():
     dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
     f = open(dir)
@@ -18,8 +18,6 @@ def plot_data():
     max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
 
     data = sorted(data, key=lambda x: x['eta'])
-
-    # pprint.pprint(sorted(data, key=lambda x: x['eta']))
 
     index = 0
     plt.rc('xtick', labelsize=10)
@@ -159,7 +157,6 @@ def heat_map(metric):
                 else:
                     text = ax.text(j, i, str(value_array[i, j])[:5],
                                    ha="center", va="center", color="w", fontsize=10)
-
 
     fig.tight_layout()
     plt.show()

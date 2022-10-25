@@ -8,6 +8,8 @@ class Model:
         self.time = None
         self.f1 = None
         self.precision = None
+        self.reg_lambda = None
+        self.reg_alpha = None
 
     def get_model(self):
         object_dict = \
@@ -19,7 +21,9 @@ class Model:
                 'booster': self.booster,
                 'time': self.time,
                 'f1': self.f1,
-                'precision': self.precision
+                'precision': self.precision,
+                'l1': self.reg_alpha,
+                'l2': self.reg_lambda
             }
 
         return object_dict
@@ -48,6 +52,12 @@ class Model:
     def set_precision(self, precision):
         self.precision = precision
 
+    def set_reg_lambda(self, reg_lambda):
+        self.reg_lambda = reg_lambda
+
+    def set_reg_alpha(self, reg_alpha):
+        self.reg_alpha = reg_alpha
+
     def get_accuracy(self):
         return self.accuracy
 
@@ -71,3 +81,10 @@ class Model:
 
     def get_precision(self):
         return self.precision
+
+    def get_reg_lambda(self):
+        return self.reg_lambda
+
+    def get_reg_alpha(self):
+        return self.reg_alpha
+

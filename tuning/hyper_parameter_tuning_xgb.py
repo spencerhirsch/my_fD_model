@@ -166,26 +166,32 @@ class xgb:
             saveFig=True,
             eta=None,
             max_depth=None,
-            booster=None,
+            booster='gbtree',
+            reg_alpha=None,
+            reg_lambda=None
     ):
 
-        num_of_epochs = 100
+        num_of_epochs = 100     # Still need to include the number of epochs to train the model on
 
-        default_dict = \
-            {
-                'eta': 0.3,
-                'max_depth': 6,
-                'booster': 'gbtree'
-            }
+        # default_dict = \
+        #     {
+        #         'eta': 0.3,
+        #         'max_depth': 6,
+        #         'booster': 'gbtree'
+        #     }
 
-        if eta is None:
-            eta = default_dict['eta']
+        '''
+        Don't really need this anymore because no None type value is passed for any of the parameters.
+        '''
 
-        if max_depth is None:
-            max_depth = default_dict['max_depth']
-
-        if booster is None:
-            booster = default_dict['booster']
+        # if eta is None:
+        #     eta = default_dict['eta']
+        #
+        # if max_depth is None:
+        #     max_depth = default_dict['max_depth']
+        #
+        # if booster is None:
+        #     booster = default_dict['booster']
 
         print("\n\n")
         print(60 * "*")
@@ -196,7 +202,7 @@ class xgb:
         global dataDir
         if self.dataset == "mc":
             mc_model = filename.split(".")[0]
-            dataDir = proc.select_file(eta, max_depth, resultDir, mc_model, booster)
+            dataDir = proc.select_file(eta, max_depth, resultDir, mc_model, reg_lambda, reg_alpha)
             try:
                 os.makedirs(dataDir)  # create directory for data/plots
             except FileExistsError:  # skip if directory already exists
@@ -214,7 +220,7 @@ class xgb:
             except FileExistsError:  # skip if directory already exists
                 pass
 
-        model = proc.select_model(eta, max_depth, booster)
+        model = proc.select_model(eta, max_depth, reg_lambda, reg_alpha)
 
         start = time.time()
         model.fit(self.trainX, self.trainY)
@@ -235,7 +241,8 @@ class xgb:
             class_out = dataDir + "/classification_report.json"
             out_file = open(class_out, "w")
             class_report = dict(classification_report(self.testY, predictedY, output_dict=True))
-            class_report['parameters'] = {'eta': eta, 'max_depth': max_depth, 'booster': booster}
+            class_report['parameters'] = {'eta': eta, 'max_depth': max_depth, 'booster': booster,
+                                          'l1': reg_alpha, 'l2': reg_lambda}
             class_report['mcc'] = matthews_corrcoef(self.testY, predictedY)
             json.dump(class_report, out_file)
 
@@ -256,6 +263,8 @@ class xgb:
             mod.set_time(total_time)
             mod.set_f1(class_report['1.0']['f1-score'])
             mod.set_precision(class_report['1.0']['precision'])
+            mod.set_reg_alpha(class_report['parameters']['l1'])
+            mod.set_reg_lambda(class_report['parameters']['l2'])
             xgb.model_list.append(mod)
             del mod
 

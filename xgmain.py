@@ -18,6 +18,7 @@ resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/MZD_200_55_pd_m
     directory. Returns a final array with all of the values necessary for generating the models.
 '''
 
+
 def process():
     data = process_data("mc")  # declare data processing object
     data.extract_data(root_file, root_dir)
@@ -61,18 +62,30 @@ def xgmain():
         default stored in archive file.
     '''
 
-    booster_list = ['gbtree', 'dart']
-    eta_array = [0.4, 0.3, 0.1, 0.01, 0.001, 0.0001]
-    max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
+    booster_list = ['gbtree', 'dart'] # Determined gbtree is best
+    alpha_array = [0, 1, 2, 3, 4, 5]   # L1 Regularization
+    lambda_array = [0, 1, 2, 3, 4, 5]   # L2 Regularization
+    eta_array = [0.6, 0.5, 0.4, 0.3, 0.1]    # Learning rate
+    max_depth_array = [3, 6, 10, 12, 15]   # Maximum depth of the tree
 
     '''
         Iterate through all of the hyper parameters. Currently looking into the learning rate (eta) and the max
         depth of the tree.
     '''
 
-    for val1 in eta_array:
-        for val2 in max_depth_array:
-            _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
+    for val_alpha in alpha_array:
+        for val_lambda in lambda_array:
+            for val_eta in eta_array:
+                for val_max_depth in max_depth_array:
+                    _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
+                                  reg_lambda=val_lambda, reg_alpha=val_alpha)
+    '''
+        Iterating over only the values of learning rate and the maximum depth of the tree.
+        This data has been collected and logged in the archive file in the external SSD.
+    '''
+    # for val1 in eta_array:
+    #     for val2 in max_depth_array:
+    #         _ = boost.xgb(single_pair=True, ret=True, eta=val1, max_depth=val2)
 
     boost.model_list.sort(key=lambda x: (x.mcc, x.accuracy), reverse=True)
 
