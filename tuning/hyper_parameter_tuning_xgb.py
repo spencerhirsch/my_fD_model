@@ -6,12 +6,15 @@ from sklearn.metrics import accuracy_score, matthews_corrcoef
 import sys
 import os
 import json
-
+from xgboost import plot_tree
 from sklearn.model_selection import train_test_split
-
+import graphviz
 from tuning.parameter_processing import Process
 from tuning.model import Model
 import time
+import xgboost
+from sklearn import tree as sktree
+import warnings
 
 '''
     Cleaned up version of xgb_plusplus.py for hyperparameter tuning. This version of the class is used
@@ -26,7 +29,6 @@ import time
 
 
 resultDir = "/Volumes/SA Hirsch/Florida Tech/research/dataframes/"
-
 
 class colors:
     WHITE = "\033[97m"
@@ -47,6 +49,7 @@ class xgb:
     model_list = []
 
     def __init__(self, dataset, file_name=None):
+        warnings.filterwarnings("ignore")
         if dataset not in ["mc", "bkg", "sig"]:
             print("Dataset type must be either 'mc' or 'bkg'.")
         else:
@@ -70,10 +73,11 @@ class xgb:
             pass
 
     def split(self, dataframe_shaped, test=0.25, random=7, scalerType=None, ret=False):
-        print("\n\n")
-        print(60 * "*")
-        print(colors.GREEN + "Splitting data into train/test datasets" + colors.ENDC)
-        print(60 * "*")
+        warnings.filterwarnings("ignore")
+        # print("\n\n")
+        # print(60 * "*")
+        # print(colors.GREEN + "Splitting data into train/test datasets" + colors.ENDC)
+        # print(60 * "*")
 
         X_data = dataframe_shaped[:, 0:23]
         Y_data = dataframe_shaped[:, 20:24]
@@ -168,41 +172,20 @@ class xgb:
             max_depth=None,
             booster='gbtree',
             reg_alpha=None,
-            reg_lambda=None
+            reg_lambda=None,
+            tree=False,
+            objective=None
     ):
-
-        num_of_epochs = 100     # Still need to include the number of epochs to train the model on
-
-        # default_dict = \
-        #     {
-        #         'eta': 0.3,
-        #         'max_depth': 6,
-        #         'booster': 'gbtree'
-        #     }
-
-        '''
-        Don't really need this anymore because no None type value is passed for any of the parameters.
-        '''
-
-        # if eta is None:
-        #     eta = default_dict['eta']
-        #
-        # if max_depth is None:
-        #     max_depth = default_dict['max_depth']
-        #
-        # if booster is None:
-        #     booster = default_dict['booster']
-
-        print("\n\n")
-        print(60 * "*")
-        print(colors.GREEN + "Building the XGBoost model and training" + colors.ENDC)
-        print(60 * "*")
-
+        # print("\n\n")
+        # print(60 * "*")
+        # print(colors.GREEN + "Building the XGBoost model and training" + colors.ENDC)
+        # print(60 * "*")
+        warnings.filterwarnings("ignore")
         proc = Process()
         global dataDir
         if self.dataset == "mc":
             mc_model = filename.split(".")[0]
-            dataDir = proc.select_file(eta, max_depth, resultDir, mc_model, reg_lambda, reg_alpha)
+            dataDir = proc.select_file(eta, max_depth, resultDir, mc_model, reg_lambda, reg_alpha, objective)
             try:
                 os.makedirs(dataDir)  # create directory for data/plots
             except FileExistsError:  # skip if directory already exists
@@ -220,11 +203,24 @@ class xgb:
             except FileExistsError:  # skip if directory already exists
                 pass
 
-        model = proc.select_model(eta, max_depth, reg_lambda, reg_alpha)
+        model = proc.select_model(eta, max_depth, reg_lambda, reg_alpha, objective)
 
         start = time.time()
         model.fit(self.trainX, self.trainY)
         end = time.time()
+
+        if tree:
+            filename = resultDir + 'MZD_200_55_pd_model/effective_model_tree'
+            #
+            # dot_data = sktree.export_graphviz(model)
+            # graph = graphviz.Source(dot_data, format="png")
+            # graph.render(filename)
+
+            # plot_tree(model)
+            # fig = plt.gcf()
+            # fig.set_size_inches(30, 15)
+            # plt.show()
+            # fig.show()
 
         total_time = end - start
 
@@ -242,7 +238,7 @@ class xgb:
             out_file = open(class_out, "w")
             class_report = dict(classification_report(self.testY, predictedY, output_dict=True))
             class_report['parameters'] = {'eta': eta, 'max_depth': max_depth, 'booster': booster,
-                                          'l1': reg_alpha, 'l2': reg_lambda}
+                                          'l1': reg_alpha, 'l2': reg_lambda, 'objective': objective}
             class_report['mcc'] = matthews_corrcoef(self.testY, predictedY)
             json.dump(class_report, out_file)
 
@@ -265,13 +261,14 @@ class xgb:
             mod.set_precision(class_report['1.0']['precision'])
             mod.set_reg_alpha(class_report['parameters']['l1'])
             mod.set_reg_lambda(class_report['parameters']['l2'])
+            mod.set_objective(class_report['parameters']['objective'])
             xgb.model_list.append(mod)
             del mod
 
-            print(
-                "\nTraining Classification Report:\n\n",
-                classification_report(self.testY, predictedY),
-            )
+            # print(
+            #     "\nTraining Classification Report:\n\n",
+            #     classification_report(self.testY, predictedY),
+            # )
 
         # merging Xtrain and Xtest
         totalDF_X1 = pd.concat([self.trainX, self.testX], axis=0)
@@ -315,100 +312,6 @@ class xgb:
             self.single_wrong_pair.to_csv(
                 dataDir + ("/single_wrong_pair_%s.csv" % self.file_name)
             )
-
-        if met:
-            print("\n\n")
-            print(60 * "*")
-            print(
-                colors.GREEN
-                + "Retrieving metrics and plotting logloss and error"
-                + colors.ENDC
-            )
-            print(60 * "*")
-
-            # plot the logloss and error figures
-            eval_set = [(self.trainX, self.trainY), (self.testX, self.testY)]
-            model.fit(
-                self.trainX,
-                self.trainY,
-                early_stopping_rounds=10,
-                eval_metric="logloss",
-                eval_set=eval_set,
-                verbose=False,
-            )
-
-            class_out = dataDir + "/history.json"
-            results = model.evals_result()
-            out_file = open(class_out, "w")
-            json.dump(results, out_file)
-
-            # make predictions for test data
-            y_pred = model.predict(self.testX)
-            predictions = [round(value) for value in y_pred]
-            # evaluate predictions
-            accuracy = accuracy_score(self.testY, predictions)
-
-            '''
-                Probably don't need the following code. Grab the necessary metrics from the classification report.
-                It is the more efficient and better way of doing it now that the classification report returns a
-                dictionary object.
-            '''
-
-            print("Accuracy: %.2f%%" % (accuracy * 100.0))
-
-            # epochs = len(results["validation_0"]["logloss"])
-            # x_axis = range(0, epochs)
-
-            # fig, ax = plt.subplots(figsize=(12, 12))
-            # ax.grid()
-            # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
-            # ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
-            # ax.legend()
-            # plt.ylabel("Log Loss", loc="top")
-            # plt.xlabel("Epoch", loc="right")
-            # plt.title("XGBoost Log Loss")
-            #
-            # if saveFig:
-            #     plt.savefig(
-            #         dataDir + ("/XGBLogLoss_default_plusplus_%s.pdf" % self.file_name),
-            #         bbox_inches="tight",
-            #     )
-
-            # plt.show()
-            # plt.clf()
-            # plt.close()
-
-            model.fit(
-                self.trainX,
-                self.trainY,
-                early_stopping_rounds=10,
-                eval_metric="error",
-                eval_set=eval_set,
-                verbose=False,
-            )
-            # results = model.evals_result()
-
-            # epochs = len(results["validation_0"]["error"])
-            # x_axis = range(0, epochs)
-
-            # plot classification error
-            # fig, ax = plt.subplots(figsize=(12, 12))
-            # ax.grid()
-            # ax.plot(x_axis, results["validation_0"]["error"], label="Train")
-            # ax.plot(x_axis, results["validation_1"]["error"], label="Test")
-            # ax.legend()
-            # plt.ylabel("Classification Error", loc="top")
-            # plt.xlabel("Epoch", loc="right")
-            # plt.title("XGBoost Classification Error")
-            #
-            # if saveFig:
-            #     plt.savefig(
-            #         dataDir
-            #         + ("/XGBClassError_default_plusplus_%s.pdf" % self.file_name),
-            #         bbox_inches="tight",
-            #     )
-
-            # plt.show()
 
         if ret:
             if single_pair:

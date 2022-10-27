@@ -10,6 +10,7 @@ class Model:
         self.precision = None
         self.reg_lambda = None
         self.reg_alpha = None
+        self.objective = None
 
     def get_model(self):
         object_dict = \
@@ -23,7 +24,8 @@ class Model:
                 'f1': self.f1,
                 'precision': self.precision,
                 'l1': self.reg_alpha,
-                'l2': self.reg_lambda
+                'l2': self.reg_lambda,
+                'objective': self.objective
             }
 
         return object_dict
@@ -58,6 +60,9 @@ class Model:
     def set_reg_alpha(self, reg_alpha):
         self.reg_alpha = reg_alpha
 
+    def set_objective(self, objective):
+        self.objective = objective
+
     def get_accuracy(self):
         return self.accuracy
 
@@ -88,3 +93,5 @@ class Model:
     def get_reg_alpha(self):
         return self.reg_alpha
 
+    def get_objective(self):
+        return self.objective

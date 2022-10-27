@@ -3,6 +3,8 @@ import os
 import json
 import numpy as np
 
+
+
 '''
     Plotting for various hyper-parameters in the model to take care of comparisons for eta and max depth.
     Shows all key metrics on one singular plot by fixing the value of the max depth of the tree.
@@ -172,3 +174,4 @@ def heat_map(metric):
     fig.savefig(path + '/heat_map_%s' % metric)
 
     index += 1
+

@@ -1,9 +1,12 @@
-import numpy as np
 from tuning.hyper_parameter_tuning_xgb import xgb
 from tuning.plotting import plot_data, heat_map
 from utilities import process_data
 import json
 import time
+import pprint
+from tqdm import tqdm
+import warnings
+
 
 
 root_file = (
@@ -49,6 +52,7 @@ def process():
 
 
 def xgmain():
+    warnings.filterwarnings("ignore")
     start = time.time()
     final_array = process()
     boost = xgb("mc")
@@ -57,8 +61,8 @@ def xgmain():
     '''
         Arrays to store the values of the hyperparameters that are run with the model. Need to look into
         using a more efficient testing algorithm. Bayesian hyperparameter tuning?
-        
-        Removed gblinear for booster parameter, inefficient and complications with xgboost, data for 
+
+        Removed gblinear for booster parameter, inefficient and complications with xgboost, data for
         default stored in archive file.
     '''
 
@@ -67,18 +71,22 @@ def xgmain():
     lambda_array = [0, 1, 2, 3, 4, 5]   # L2 Regularization
     eta_array = [0.6, 0.5, 0.4, 0.3, 0.1]    # Learning rate
     max_depth_array = [3, 6, 10, 12, 15]   # Maximum depth of the tree
+    objective_array = ['binary:logistic', 'binary:hinge', 'reg:squarederror']
 
     '''
         Iterate through all of the hyper parameters. Currently looking into the learning rate (eta) and the max
         depth of the tree.
     '''
 
-    for val_alpha in alpha_array:
-        for val_lambda in lambda_array:
-            for val_eta in eta_array:
-                for val_max_depth in max_depth_array:
-                    _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
-                                  reg_lambda=val_lambda, reg_alpha=val_alpha)
+    for val_eta in tqdm(eta_array):
+        for val_alpha in alpha_array:
+            for val_lambda in lambda_array:
+                for val_obj in objective_array:
+                    for val_max_depth in max_depth_array:
+                        _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
+                                      reg_lambda=val_lambda, reg_alpha=val_alpha, objective=val_obj)
+
+
     '''
         Iterating over only the values of learning rate and the maximum depth of the tree.
         This data has been collected and logged in the archive file in the external SSD.
@@ -108,6 +116,30 @@ def xgmain():
     print(total)
 
 
+def draw_tree():
+    final_array = process()
+    boost = xgb("mc")
+    boost.split(final_array)
+
+    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_102522_346PM/' \
+          'MZD_200_55_pd_model/model_list.json'
+
+    f = open(dir)
+    data = json.load(f)
+    data = sorted(data, key=lambda x: x['mcc'], reverse=True)
+    pprint.pprint(data)
+
+    value = data[0]
+
+    val_eta = value['eta']
+    val_max_depth = value['max depth']
+    val_alpha = value['l1']
+    val_lambda = value['l2']
+
+    _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
+                  reg_lambda=val_lambda, reg_alpha=val_alpha, tree=True)
+
+
 '''
     Driver function that handles each respective function. Takes input from the standard input stream
     and calls each function for its desired ability specified by the user. Makes the code much cleaner 
@@ -116,7 +148,7 @@ def xgmain():
 
 def main():
     print('Which program would you like to use:\n(1): Generate permutations of models \n(2): Generate Heat Map '
-          '\n(3): Plot data')
+          '\n(3): Plot data \n(4): Output tree')
 
     choice = input('Choice: ')
 
@@ -139,6 +171,8 @@ def main():
         heat_map(metric)
     elif choice == '3':
         plot_data()
+    elif choice == '4':
+        draw_tree()
     else:
         print("Input invalid.")
 
