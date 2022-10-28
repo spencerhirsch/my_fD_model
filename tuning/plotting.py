@@ -92,17 +92,30 @@ def heat_map(metric):
         vmax = 11
 
     # Directory the stores the object list json file.
-    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_1021_647PM/model_list.json'
+    dir = '/Volumes/SA Hirsch/Florida Tech/research/dataframes/archive/data_102822_843AM/model_list.json'
+
     f = open(dir)
     data = json.load(f)
 
-    max_depth_array = [3, 6, 10, 20, 30, 50, 75, 100]
-    eta_array = [0.0001, 0.001, 0.01, 0.1, 0.3, 0.4]
+    # max_depth_array = [3, 6, 10, 12, 15]
+    # eta_array = [0.1, 0.3, 0.4, 0.5, 0.6]
     value_array = []
 
     # Sort dict based on learning rate in increasing order
     data = sorted(data, key=lambda x: x['eta'], reverse=False)
     index = 0
+
+    eta_array = []
+    max_depth_array =[]
+    for val in data:
+        if val['eta'] not in eta_array:
+            eta_array.append(val['eta'])
+
+        if val['max depth'] not in max_depth_array:
+            max_depth_array.append(val['max depth'])
+
+    eta_array.sort()
+    max_depth_array.sort()
 
     '''
         Iterate through the dictionary finding values of the same maximum depth to group the data.
@@ -123,11 +136,14 @@ def heat_map(metric):
         index += 1
 
     value_array.reverse()   # Reverse the array storing all of the values
+    # value_array = np.array(value_array, dtype=object)     # Convert to numpy array
     value_array = np.array(value_array)     # Convert to numpy array
+    # print(value_array)
+
 
     plt.rcParams.update({'font.size': 14})  # Increase font size for plotting
-    fig, ax = plt.subplots() # Initialize plot
-
+    fig, ax = plt.subplots(figsize=(40, 4)) # Initialize plot
+    # im = ax.imshow(value_array)
     im = ax.imshow(value_array, vmin=vmin, vmax=vmax)
     ax.set_xlabel(r'Learning rate ($\eta$)', loc="right")
     ax.set_ylabel('Max depth', loc="top")
@@ -169,7 +185,7 @@ def heat_map(metric):
     try:
         os.mkdir(path)
     except OSError as error:
-        print(error)
+        pass
 
     fig.savefig(path + '/heat_map_%s' % metric)
 

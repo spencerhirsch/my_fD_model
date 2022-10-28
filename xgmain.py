@@ -78,13 +78,25 @@ def xgmain():
         depth of the tree.
     '''
 
+    # for val_eta in tqdm(eta_array):
+    #     for val_alpha in alpha_array:
+    #         for val_lambda in lambda_array:
+    #             for val_obj in objective_array:
+    #                 for val_max_depth in max_depth_array:
+    #                     _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
+    #                                   reg_lambda=val_lambda, reg_alpha=val_alpha, objective=val_obj)
+
+
+    '''
+        Testing purposes, got conflicting results for MCC of default values. Quite a large difference, 
+        testing is necessary.
+    '''
     for val_eta in tqdm(eta_array):
         for val_alpha in alpha_array:
             for val_lambda in lambda_array:
-                for val_obj in objective_array:
-                    for val_max_depth in max_depth_array:
-                        _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
-                                      reg_lambda=val_lambda, reg_alpha=val_alpha, objective=val_obj)
+                for val_max_depth in max_depth_array:
+                    _ = boost.xgb(single_pair=True, ret=True, eta=val_eta, max_depth=val_max_depth,
+                                  reg_lambda=val_lambda, reg_alpha=val_alpha, objective='reg:squarederror')
 
 
     '''
@@ -109,11 +121,12 @@ def xgmain():
 
     end = time.time()
     total = end - start
+    t_hours = (total / 60) / 60
 
     class_out = resultDir + "/time.json"
     out_file = open(class_out, "w")
-    json.dump(total, out_file)
-    print(total)
+    json.dump(t_hours, out_file)
+    print(t_hours)
 
 
 def draw_tree():
